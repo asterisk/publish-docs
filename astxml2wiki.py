@@ -279,11 +279,17 @@ class AstXML2Wiki:
 
         newpage = {'space': self.args['space']}
         xslt = etree.XSLT(etree.parse('astxml2wiki.xslt'))
-        topics = ['manager','application','function','agi',]
-        if not hasattr(self, 'svndir') or not self.svndir == 'workdirs/1.8' and not self.svndir == 'workdirs/10':
-            topics.append('managerEvent')
-        if not hasattr(self, 'svndir') or not self.svndir == 'workdirs/1.8' and not self.svndir == 'workdirs/10' and not self.svndir == 'workdirs/11':
-            topics.append('configInfo')
+        topics = ['manager','application','function','agi','managerEvent','configInfo']
+
+        # HACK - guess version from prefix
+
+        # managerEvent introduced in Asterisk 11
+        if self.prefix == '' or self.prefix == "Asterisk 10":
+            topics.remove('managerEvent')
+
+        # configInfo introduced in Asterisk 12
+        if self.prefix == '' or self.prefix == "Asterisk 10" or self.prefix == "Asterisk 11":
+            topics.remove('configInfo')
 
         for f in topics:
             # Get the ids of the parent pages
