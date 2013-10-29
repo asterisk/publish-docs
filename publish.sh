@@ -188,4 +188,4 @@ ${TOPDIR}/astxml2wiki.py --username="${CONFLUENCE_USER}" \
     --prefix="${PREFIX}" \
     --space="${CONFLUENCE_SPACE}" \
     --file=${TOPDIR}/asterisk-docs.xml \
-    --debug -v
+    --diff -v
