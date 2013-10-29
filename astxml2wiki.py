@@ -291,10 +291,13 @@ class AstXML2Wiki:
                 if self.args['v'] is True:
                     print "getPage(%s, %s, %s)" % (self.token, self.args['space'], self.parent[f])
 
-                elpage = self.api.getPage(
-                    self.token, self.args['space'], self.parent[f]
-                )
-                self.parent[f] = elpage['id']
+                try:
+                    elpage = self.api.getPage(
+                        self.token, self.args['space'], self.parent[f])
+                    self.parent[f] = elpage['id']
+                except:
+                    print >>sys.stderr, "Exception getting %s/%s" % (self.args['space'], self.parent[f])
+                    raise
 
         if self.args['v'] is True:
             print "Updating Confluence"
