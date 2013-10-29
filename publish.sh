@@ -39,12 +39,15 @@ if ! test ${CONFLUENCE_USER}; then
     fail "CONFLUENCE_USER not set in ~/.asterisk-wiki.conf"
 fi
 
-if ! test ${CONFLUENCE_PASSWORD}; then
-    fail "CONFLUENCE_PASSWORD not set in ~/.asterisk-wiki.conf"
-fi
-
 # default space to AST
 : ${CONFLUENCE_SPACE:=AST}
+
+#
+# Check Bamboo environment
+#
+if ! test ${PASSWORD}; then
+    fail "PASSWORD not set in ~/.asterisk-wiki.conf"
+fi
 
 #
 # Check repository
@@ -119,7 +122,6 @@ fi
 # Publish the REST API. Pass the password via environment so it doesn't show
 # up in the output.
 #
-PASSWORD="${CONFLUENCE_PASSWORD}" \
 echo ${TOPDIR}/publish-rest-api.py --username="${CONFLUENCE_USER}" \
     --verbose \
     ${CONFLUENCE_URL} \
@@ -158,7 +160,6 @@ ${AST_DIR}/sbin/asterisk -x "core stop now"
 cd ${TOPDIR}
 
 # Pass the password via environment so it doesn't show up in the output.
-PASSWORD="${CONFLUENCE_PASSWORD}" \
 echo ${TOPDIR}/astxml2wiki.py --username="${CONFLUENCE_USER}" \
     --server=${CONFLUENCE_URL} \
     --prefix="Asterisk ${BRANCH_NAME}" \
