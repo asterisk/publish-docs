@@ -41,6 +41,9 @@ fi
 if ! test ${CONFLUENCE_PASSWORD}; then
     fail "CONFLUENCE_PASSWORD not set in ~/.asterisk-wiki.conf"
 fi
+# needed by publishing scripts. pass via the environment so it doesn't show
+# up in the logs.
+export CONFLUENCE_PASSWORD
 
 # default space to AST
 : ${CONFLUENCE_SPACE:=AST}
@@ -60,12 +63,16 @@ if test ${CHANGES} -ne 0; then
     fail "Asterisk checkout must be clean"
 fi
 
+# Verbose, and exit on any command failure
+set -ex
+
+#
+# See if we need to build ARI docs
+#
 unset HAS_REST_API
 if test -d doc/rest-api; then
     HAS_REST_API=true
 fi
-
-set -ex
 
 #
 # Create a virtualenv to install dependencies
@@ -115,8 +122,7 @@ if test ${BRANCH_NAME} = 'trunk'; then
 fi
 
 #
-# Publish the REST API. Pass the password via environment so it doesn't show
-# up in the output.
+# Publish the REST API.
 #
 if test ${HAS_REST_API}; then
     ${TOPDIR}/publish-rest-api.py --username="${CONFLUENCE_USER}" \
@@ -143,16 +149,18 @@ case ${BRANCH_NAME} in
 esac
 make install samples
 
-killall -9 asterisk
-if test $(uname -s) = Darwin; then
-    ${AST_DIR}/sbin/asterisk &
-    sleep 3
-else
-    ${AST_DIR}/sbin/asterisk -F
-fi
+killall -9 asterisk || true # Or true so set -e doesn't kill us
+${AST_DIR}/sbin/asterisk
+
 rm -f ${TOPDIR}/full-en_US.xml
 ${AST_DIR}/sbin/asterisk -x "xmldoc dump ${TOPDIR}/full-en_US.xml"
-killall -9 asterisk
+
+# Kill Asterisk, and wait for it to die
+AST_PID=$(cat ${AST_DIR}/var/run/asterisk/asterisk.pid)
+killall -9 asterisk || true # Or true so set -e doesn't kill us
+while kill -0 ${AST_PID}; do
+    sleep 0.1
+done
 
 #
 # Publish XML documentation.
@@ -161,7 +169,6 @@ killall -9 asterisk
 # Script assumes that it's running from TOPDIR
 cd ${TOPDIR}
 
-# Pass the password via environment so it doesn't show up in the output.
 ${TOPDIR}/astxml2wiki.py --username="${CONFLUENCE_USER}" \
     --server=${CONFLUENCE_URL} \
     ${PREFIX_ARG} \

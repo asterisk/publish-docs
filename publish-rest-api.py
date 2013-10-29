@@ -42,7 +42,7 @@ def main(argv):
     wikidir = 'doc/rest-api'
 
     if not options.username:
-        options.username = os.environ['USER']
+        options.username = getpass.getuser()
 
     # If password isn't on the command line, check the environment
     if not options.password:
