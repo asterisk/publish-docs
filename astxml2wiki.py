@@ -43,7 +43,6 @@ class AstXML2Wiki:
 
         self.s = ''
         self.path = ''
-        self.ast_v = 'Unknown'
         self.token = ''
         self.thingschanged = True
         self.elements = []
@@ -59,7 +58,8 @@ class AstXML2Wiki:
             'v': False,
             'debug': False,
             'force-convert': False,
-            'diff': False
+            'diff': False,
+            'ast-version': 'Unknown'
         }
         self.processed = {
             'unchanged': 0,
@@ -74,6 +74,8 @@ class AstXML2Wiki:
                 self.args[pieces[0].strip('-')] = pieces[1]
             except:
                 self.args[pieces[0].strip('-')] = True
+
+        self.ast_v = self.args['ast-version']
 
         if self.args['prefix'] == 'AST':
             self.args['prefix'] = ''
@@ -376,7 +378,7 @@ class AstXML2Wiki:
                     else:
                         self.api.updatePage(self.token, elpage, {
                             'minorEdit': True,
-                            'versionComment': 'Updated to' + self.ast_v
+                            'versionComment': 'Updated to ' + self.ast_v
                         })
 
             except:

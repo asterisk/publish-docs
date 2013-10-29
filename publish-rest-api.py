@@ -30,6 +30,8 @@ def main(argv):
     parser.add_option("--password", dest="password", help="Confluence password")
     parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="Verbose output")
     parser.add_option("--dry-run", action="store_true", dest="dry_run", default=False, help="Don't make changes")
+    parser.add_option("--ast-version", default="Unknown version",
+                      help="Asterisk version string, including SVN info")
 
     (options, args) = parser.parse_args(argv)
 
@@ -80,7 +82,7 @@ def main(argv):
 
         comment = {
             'minorEdit': True,
-            'versionComment': 'Automagic update'
+            'versionComment': 'Update to %s' % options.ast_version
         }
         content = read_fully(wiki)
 

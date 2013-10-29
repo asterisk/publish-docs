@@ -11,9 +11,10 @@ if test -f ~/.asterisk-wiki.conf; then
    . ~/.asterisk-wiki.conf
 fi
 
-: ${SVN:=svn}
+: ${AWK:=awk}
 : ${GREP:=grep}
 : ${MAKE:=make}
+: ${SVN:=svn}
 
 function fail()
 {
@@ -95,6 +96,8 @@ else
     AST_DIR=$(sed -n "s/^prefix='\([^']*\)'/\1/ p" config.log)
 fi
 
+AST_VER=$(export GREP; export AWK; ./build_tools/make_version .)
+
 #
 # Check ARI documentation consistency
 #
@@ -127,6 +130,7 @@ fi
 if test ${HAS_REST_API}; then
     ${TOPDIR}/publish-rest-api.py --username="${CONFLUENCE_USER}" \
         --verbose \
+        --ast-version="${AST_VER}" \
         ${CONFLUENCE_URL} \
         ${CONFLUENCE_SPACE} \
         "Asterisk ${BRANCH_NAME}"
@@ -194,4 +198,5 @@ ${TOPDIR}/astxml2wiki.py --username="${CONFLUENCE_USER}" \
     --prefix="${PREFIX}" \
     --space="${CONFLUENCE_SPACE}" \
     --file=${TOPDIR}/asterisk-docs.xml \
+    --ast-version="${AST_VER}" \
     -v
