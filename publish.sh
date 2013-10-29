@@ -22,8 +22,30 @@ function fail()
     exit 1
 }
 
+function usage()
+{
+    echo "usage: ${PROGNAME} [--dry-run] branch-name"
+}
+
+DRY_RUN=false
+while test $# -gt 0; do
+    case $1 in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
 if test $# -eq 0; then
-    echo "usage: ${PROGNAME} [branch-name]" >&2
+    usage >&2
     exit 1
 fi
 BRANCH_NAME="$1"
@@ -128,7 +150,14 @@ fi
 # Publish the REST API.
 #
 if test ${HAS_REST_API}; then
+    if ${DRY_RUN}; then
+        DRY_RUN_ARG=--dry-run
+    else
+        DRY_RUN_ARG=
+    fi
+
     ${TOPDIR}/publish-rest-api.py --username="${CONFLUENCE_USER}" \
+        ${DRY_RUN_ARG} \
         --verbose \
         --ast-version="${AST_VER}" \
         ${CONFLUENCE_URL} \
@@ -161,7 +190,8 @@ case ${BRANCH_NAME} in
         make -j ${JOBS} full && make install samples
 
         killall -9 asterisk || true # || true so set -e doesn't kill us
-        ${AST_DIR}/sbin/asterisk
+        ${AST_DIR}/sbin/asterisk &
+        sleep 1
 
         rm -f ${TOPDIR}/full-en_US.xml
         ${AST_DIR}/sbin/asterisk -x "core waitfullybooted"
@@ -190,6 +220,12 @@ fi
 # Publish XML documentation.
 #
 
+if ${DRY_RUN}; then
+    DRY_RUN_ARG=--diff
+else
+    DRY_RUN_ARG=
+fi
+
 # Script assumes that it's running from TOPDIR
 cd ${TOPDIR}
 
@@ -199,4 +235,5 @@ ${TOPDIR}/astxml2wiki.py --username="${CONFLUENCE_USER}" \
     --space="${CONFLUENCE_SPACE}" \
     --file=${TOPDIR}/asterisk-docs.xml \
     --ast-version="${AST_VER}" \
+    ${DRY_RUN_ARG} \
     -v
