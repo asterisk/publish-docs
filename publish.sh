@@ -129,7 +129,16 @@ echo ${TOPDIR}/publish-rest-api.py --username="${CONFLUENCE_USER}" \
 #
 # XML docs need a live Asterisk to interact with, so build one
 #
-make full install samples
+case ${BRANCH_NAME} in
+    1.8|10*)
+        # make full introduced in 11
+        make all
+        ;;
+    *)
+        make full
+        ;;
+esac
+make install samples
 
 if test $(uname -s) = Darwin; then
     ${AST_DIR}/sbin/asterisk &
