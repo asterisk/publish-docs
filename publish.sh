@@ -46,7 +46,7 @@ fi
 # Check Bamboo environment
 #
 if ! test ${PASSWORD}; then
-    fail "PASSWORD not set in ~/.asterisk-wiki.conf"
+    fail "PASSWORD not set in Bamboo environment"
 fi
 
 #
@@ -102,7 +102,7 @@ if test ${HAS_REST_API}; then
     # Ensure docs are consistent with the implementation
     CHANGES=$(${SVN} st --ignore-externals | grep -v '^X' | wc -l)
     if test ${CHANGES} -ne 0; then
-	fail "Asterisk code out of date compared to the model"
+        fail "Asterisk code out of date compared to the model"
     fi
 
     # make ari-stubs may modify the $Revision$ tags in a file; revert the
@@ -122,21 +122,26 @@ fi
 # Publish the REST API. Pass the password via environment so it doesn't show
 # up in the output.
 #
-${TOPDIR}/publish-rest-api.py --username="${CONFLUENCE_USER}" \
-    --verbose --dry-run \
-    ${CONFLUENCE_URL} \
-    ${CONFLUENCE_SPACE} \
-    "Asterisk ${BRANCH_NAME}"
+if test ${HAS_REST_API}; then
+    ${TOPDIR}/publish-rest-api.py --username="${CONFLUENCE_USER}" \
+        --verbose --dry-run \
+        ${CONFLUENCE_URL} \
+        ${CONFLUENCE_SPACE} \
+        "Asterisk ${BRANCH_NAME}"
+fi
 
 #
 # XML docs need a live Asterisk to interact with, so build one
 #
 case ${BRANCH_NAME} in
     1.8|10*)
+        # Asterisk 1.8 docs don't have version number in the prefix
+        PREFIX_ARG=""
         # make full introduced in 11
         make all
         ;;
     *)
+        PREFIX_ARG="--prefix=\"Asterisk ${BRANCH_NAME}\""
         make full
         ;;
 esac
@@ -162,7 +167,7 @@ cd ${TOPDIR}
 # Pass the password via environment so it doesn't show up in the output.
 ${TOPDIR}/astxml2wiki.py --username="${CONFLUENCE_USER}" \
     --server=${CONFLUENCE_URL} \
-    --prefix="Asterisk ${BRANCH_NAME}" \
+    ${PREFIX_ARG} \
     --space="${CONFLUENCE_SPACE}" \
     --file=${TOPDIR}/full-en_US.xml \
     --debug -v
