@@ -46,7 +46,7 @@ def main(argv):
 
     # If password isn't on the command line, check the environment
     if not options.password:
-        options.password = os.environ.get('PASSWORD')
+        options.password = os.environ.get('CONFLUENCE_PASSWORD')
 
     # If not there, prompt for it
     if not options.password:

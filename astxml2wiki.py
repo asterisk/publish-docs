@@ -99,7 +99,7 @@ class AstXML2Wiki:
 
         # If password isn't on the command line, check the environment
         if not self.args['password']:
-            self.args['password'] = os.environ.get('PASSWORD', '')
+            self.args['password'] = os.environ.get('CONFLUENCE_PASSWORD', '')
 
         if not self.args['debug'] or self.args['force-convert']:
             if self.args['username'] == '' or self.args['password'] == '':

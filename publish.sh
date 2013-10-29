@@ -5,8 +5,7 @@
 #
 
 PROGNAME=$(basename $0)
-TOPDIR=$(dirname $0)
-TOPDIR=$(cd ${TOPDIR} && pwd)
+TOPDIR=$(cd $(dirname $0) && pwd)
 
 if test -f ~/.asterisk-wiki.conf; then
    . ~/.asterisk-wiki.conf
@@ -39,15 +38,12 @@ if ! test ${CONFLUENCE_USER}; then
     fail "CONFLUENCE_USER not set in ~/.asterisk-wiki.conf"
 fi
 
+if ! test ${CONFLUENCE_PASSWORD}; then
+    fail "CONFLUENCE_PASSWORD not set in ~/.asterisk-wiki.conf"
+fi
+
 # default space to AST
 : ${CONFLUENCE_SPACE:=AST}
-
-#
-# Check Bamboo environment
-#
-if ! test ${PASSWORD}; then
-    fail "PASSWORD not set in Bamboo environment"
-fi
 
 #
 # Check repository
