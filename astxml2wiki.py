@@ -284,11 +284,11 @@ class AstXML2Wiki:
         # HACK - guess version from prefix
 
         # managerEvent introduced in Asterisk 11
-        if self.prefix == '' or self.prefix == "Asterisk 10":
+        if self.args['prefix'] == '' or self.args['prefix'] == "Asterisk 10 ":
             topics.remove('managerEvent')
 
         # configInfo introduced in Asterisk 12
-        if self.prefix == '' or self.prefix == "Asterisk 10" or self.prefix == "Asterisk 11":
+        if self.args['prefix'] == '' or self.args['prefix'] == "Asterisk 10 " or self.args['prefix'] == "Asterisk 11 ":
             topics.remove('configInfo')
 
         for f in topics:
