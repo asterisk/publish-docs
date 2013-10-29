@@ -154,5 +154,5 @@ echo ${TOPDIR}/astxml2wiki.py --username="${CONFLUENCE_USER}" \
     --server=${CONFLUENCE_URL} \
     --prefix="Asterisk ${BRANCH_NAME}" \
     --space="${CONFLUENCE_SPACE}" \
-    --file=${TOPDIR}/full-en_US.xml
+    --file=${TOPDIR}/full-en_US.xml \
     --debug -v
