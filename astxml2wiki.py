@@ -96,6 +96,11 @@ class AstXML2Wiki:
             sys.exit(2)
 
         self.convert = False
+
+        # If password isn't on the command line, check the environment
+        if not self.args['password']:
+            self.args['password'] = os.environ.get('PASSWORD', '')
+
         if not self.args['debug'] or self.args['force-convert']:
             if self.args['username'] == '' or self.args['password'] == '':
                 print >> sys.stderr, "Please specify a username and a password."
