@@ -147,6 +147,7 @@ case ${BRANCH_NAME} in
 esac
 make install samples
 
+killall -9 asterisk
 if test $(uname -s) = Darwin; then
     ${AST_DIR}/sbin/asterisk &
     sleep 3
@@ -155,7 +156,7 @@ else
 fi
 rm -f ${TOPDIR}/full-en_US.xml
 ${AST_DIR}/sbin/asterisk -x "xmldoc dump ${TOPDIR}/full-en_US.xml"
-${AST_DIR}/sbin/asterisk -x "core stop now"
+killall -9 asterisk
 
 #
 # Publish XML documentation.
