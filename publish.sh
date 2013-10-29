@@ -22,6 +22,12 @@ function fail()
     exit 1
 }
 
+if test $# -eq 0; then
+    echo "usage: ${PROGNAME} [branch-name]" >&2
+    exit 1
+fi
+BRANCH_NAME="$1"
+
 #
 # Check settings from config file
 #
@@ -41,12 +47,8 @@ fi
 : ${CONFLUENCE_SPACE:=AST}
 
 #
-# Check settings from Bamboo
+# Check repository
 #
-if ! test ${BRANCH_NAME}; then
-    fail "BRANCH_NAME not set in environment"
-fi
-
 if ! test -f main/asterisk.c; then
     fail "Must run from an Asterisk checkout"
 fi
@@ -118,7 +120,7 @@ fi
 # up in the output.
 #
 PASSWORD="${CONFLUENCE_PASSWORD}" \
-${TOPDIR}/publish-rest-api.py --username="${CONFLUENCE_USER}" \
+echo ${TOPDIR}/publish-rest-api.py --username="${CONFLUENCE_USER}" \
     --verbose \
     ${CONFLUENCE_URL} \
     ${CONFLUENCE_SPACE} \
@@ -148,7 +150,7 @@ cd ${TOPDIR}
 
 # Pass the password via environment so it doesn't show up in the output.
 PASSWORD="${CONFLUENCE_PASSWORD}" \
-${TOPDIR}/astxml2wiki.py --username="${CONFLUENCE_USER}" \
+echo ${TOPDIR}/astxml2wiki.py --username="${CONFLUENCE_USER}" \
     --server=${CONFLUENCE_URL} \
     --prefix="Asterisk ${BRANCH_NAME}" \
     --space="${CONFLUENCE_SPACE}" \
