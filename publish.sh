@@ -149,7 +149,12 @@ case ${BRANCH_NAME} in
     *)
         # 12 and later needs to run Asterisk, so a full build
         # is necessary
-        make full install samples
+        NPROC=1
+        if which nproc > /dev/null 2>&1; then
+            NPROC=$(nproc)
+        fi
+        JOBS=$(( ${NPROC} + ${NPROC} / 2 ))
+        make -j ${JOBS} full && make install samples
 
         killall -9 asterisk || true # || true so set -e doesn't kill us
         ${AST_DIR}/sbin/asterisk
