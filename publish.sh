@@ -122,8 +122,8 @@ fi
 # Publish the REST API. Pass the password via environment so it doesn't show
 # up in the output.
 #
-echo ${TOPDIR}/publish-rest-api.py --username="${CONFLUENCE_USER}" \
-    --verbose \
+${TOPDIR}/publish-rest-api.py --username="${CONFLUENCE_USER}" \
+    --verbose --dry-run \
     ${CONFLUENCE_URL} \
     ${CONFLUENCE_SPACE} \
     "Asterisk ${BRANCH_NAME}"
@@ -160,7 +160,7 @@ ${AST_DIR}/sbin/asterisk -x "core stop now"
 cd ${TOPDIR}
 
 # Pass the password via environment so it doesn't show up in the output.
-echo ${TOPDIR}/astxml2wiki.py --username="${CONFLUENCE_USER}" \
+${TOPDIR}/astxml2wiki.py --username="${CONFLUENCE_USER}" \
     --server=${CONFLUENCE_URL} \
     --prefix="Asterisk ${BRANCH_NAME}" \
     --space="${CONFLUENCE_SPACE}" \
