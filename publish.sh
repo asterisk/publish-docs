@@ -160,6 +160,7 @@ case ${BRANCH_NAME} in
         ${AST_DIR}/sbin/asterisk
 
         rm -f ${TOPDIR}/full-en_US.xml
+        ${AST_DIR}/sbin/asterisk -x "core waitfullybooted"
         ${AST_DIR}/sbin/asterisk -x "xmldoc dump ${TOPDIR}/asterisk-docs.xml"
 
         # Kill Asterisk, and wait for it to die
