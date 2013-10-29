@@ -126,7 +126,7 @@ fi
 #
 if test ${HAS_REST_API}; then
     ${TOPDIR}/publish-rest-api.py --username="${CONFLUENCE_USER}" \
-        --verbose --dry-run \
+        --verbose \
         ${CONFLUENCE_URL} \
         ${CONFLUENCE_SPACE} \
         "Asterisk ${BRANCH_NAME}"
@@ -194,4 +194,4 @@ ${TOPDIR}/astxml2wiki.py --username="${CONFLUENCE_USER}" \
     --prefix="${PREFIX}" \
     --space="${CONFLUENCE_SPACE}" \
     --file=${TOPDIR}/asterisk-docs.xml \
-    --diff -v
+    -v
