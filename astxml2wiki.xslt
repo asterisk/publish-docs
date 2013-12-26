@@ -453,7 +453,9 @@ the XML again with the full descriptions, and forms bulleted lists.
     <xsl:text>&#10;</xsl:text>
     <xsl:choose>
         <xsl:when test="parameter">
-            <xsl:apply-templates select="parameter"/>
+            <xsl:apply-templates select="parameter">
+                <xsl:with-param name="bullet" select="'*'"/>
+            </xsl:apply-templates>
             <xsl:text>&#10;</xsl:text>
         </xsl:when>
     </xsl:choose>
@@ -474,9 +476,34 @@ the XML again with the full descriptions, and forms bulleted lists.
     <xsl:text>&#10;</xsl:text>
 </xsl:template>
 
+<xsl:template match="info">
+    <xsl:param name="bullet"/>
+    <xsl:param name="returntype"/>
+    <xsl:value-of select="$bullet"/><xsl:text> </xsl:text>
+    <xsl:text>*Technology: </xsl:text><xsl:value-of select="@tech"/><xsl:text>*</xsl:text>
+    <xsl:text>&#10;</xsl:text>
+    <xsl:if test="para">
+        <xsl:apply-templates match="para">
+            <xsl:with-param name="returntype">single</xsl:with-param>
+        </xsl:apply-templates>
+    </xsl:if>
+    <xsl:apply-templates select="note">
+        <xsl:with-param name="returntype">single</xsl:with-param>
+    </xsl:apply-templates>
+    <xsl:apply-templates select="warning">
+        <xsl:with-param name="returntype">single</xsl:with-param>
+    </xsl:apply-templates>
+    <xsl:apply-templates select="variablelist">
+        <xsl:with-param name="bullet" select="concat($bullet,'*')"/>
+    </xsl:apply-templates>
+    <xsl:apply-templates select="enumlist">
+        <xsl:with-param name="bullet" select="concat($bullet,'*')"/>
+    </xsl:apply-templates>
+</xsl:template>
+
 <xsl:template match="parameter">
     <xsl:param name="bullet"/>
-    <xsl:value-of select="concat($bullet,'*')"/>
+    <xsl:value-of select="$bullet"/>
     <xsl:text> </xsl:text>
     <xsl:text>{{</xsl:text><xsl:value-of select="@name"/><xsl:text>}}</xsl:text>
     <xsl:choose>
@@ -490,7 +517,7 @@ the XML again with the full descriptions, and forms bulleted lists.
     <!-- Note: we do a for-each to preserve the order of the nodes -->
     <for-each select="./*">
         <xsl:apply-templates select="./*">
-            <xsl:with-param name="bullet" select="concat($bullet,'**')"/>
+            <xsl:with-param name="bullet" select="concat($bullet,'*')"/>
             <xsl:with-param name="returntype">single</xsl:with-param>
         </xsl:apply-templates>
     </for-each>
@@ -668,16 +695,6 @@ be displayed.
     </xsl:apply-templates>
     <xsl:apply-templates select="enumlist">
         <xsl:with-param name="bullet" select="concat($bullet,'*')"/>
-    </xsl:apply-templates>
-</xsl:template>
-
-<xsl:template match="info">
-    <xsl:param name="returntype"/>
-    <xsl:text>&#10;</xsl:text>
-    <xsl:text>*Technology: </xsl:text><xsl:value-of select="@tech"/><xsl:text>*</xsl:text>
-    <xsl:text>&#10;</xsl:text>
-    <xsl:apply-templates match="para">
-        <xsl:with-param name="returntype" select="$returntype"/>
     </xsl:apply-templates>
 </xsl:template>
 
