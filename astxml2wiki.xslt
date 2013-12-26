@@ -140,8 +140,8 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     <xsl:text>h3. Syntax&#10;</xsl:text>
     <xsl:text>&#10;</xsl:text>
     <xsl:apply-templates select="syntax">
-        <xsl:with-param name="type">manager</xsl:with-param>
-        <xsl:with-param name="name" select="@name"/>
+        <xsl:with-param name="type">managerEvent</xsl:with-param>
+        <xsl:with-param name="name" select="$name"/>
     </xsl:apply-templates>
     <xsl:text>h3. See Also&#10;</xsl:text>
     <xsl:apply-templates select="see-also"/>
@@ -418,6 +418,7 @@ the XML again with the full descriptions, and forms bulleted lists.
         </xsl:for-each>
     </xsl:if>
     <xsl:if test="$type='manager'">
+        <xsl:text>&#10;</xsl:text>
         <xsl:text>Action: </xsl:text><xsl:value-of select="$name"/><xsl:text>&#10;</xsl:text>
         <xsl:for-each select="parameter">
             <xsl:if test="@required='false' or @required='no'">
@@ -432,6 +433,7 @@ the XML again with the full descriptions, and forms bulleted lists.
         </xsl:for-each>
     </xsl:if>
     <xsl:if test="$type='managerEvent'">
+        <xsl:text>&#10;</xsl:text>
         <xsl:text>Event: </xsl:text><xsl:value-of select="$name"/><xsl:text>&#10;</xsl:text>
         <xsl:for-each select="parameter">
             <xsl:if test="@required='false' or @required='no'">
