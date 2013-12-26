@@ -177,7 +177,7 @@ case ${BRANCH_NAME} in
     11)
         # 11 had full docs
         make doc/full-en_US.xml
-        mv -f doc/full-en_US.xml ${TOPDIR}/asterisk-docs.xml
+        mv -f doc/core-en_US.xml ${TOPDIR}/asterisk-docs.xml
         ;;
     *)
         # 12 and later needs to run Asterisk, so a full build
