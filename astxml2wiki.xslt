@@ -16,7 +16,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     <xsl:text>h1. </xsl:text><xsl:value-of select="@name"/><xsl:text>()</xsl:text>
     <xsl:choose>
         <xsl:when test="@module">
-	    <xsl:text> - \[</xsl:text><xsl:value-of select="@module"/><xsl:text>\]</xsl:text>
+        <xsl:text> - \[</xsl:text><xsl:value-of select="@module"/><xsl:text>\]</xsl:text>
         </xsl:when>
     </xsl:choose>
     <xsl:text>&#10;&#10;</xsl:text>
@@ -68,7 +68,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     <xsl:text>h1. </xsl:text><xsl:value-of select="translate(@name, $smallcase, $uppercase)"/>
     <xsl:choose>
         <xsl:when test="@module">
-	    <xsl:text> - \[</xsl:text><xsl:value-of select="@module"/><xsl:text>\]</xsl:text>
+        <xsl:text> - \[</xsl:text><xsl:value-of select="@module"/><xsl:text>\]</xsl:text>
         </xsl:when>
     </xsl:choose>
     <xsl:text>&#10;&#10;</xsl:text>
@@ -94,7 +94,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     <xsl:text>h1. </xsl:text><xsl:value-of select="@name"/>
     <xsl:choose>
         <xsl:when test="@module">
-	    <xsl:text> - \[</xsl:text><xsl:value-of select="@module"/><xsl:text>\]</xsl:text>
+        <xsl:text> - \[</xsl:text><xsl:value-of select="@module"/><xsl:text>\]</xsl:text>
         </xsl:when>
     </xsl:choose>
     <xsl:text>&#10;&#10;</xsl:text>
@@ -119,7 +119,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     <xsl:text>h1. </xsl:text><xsl:value-of select="@name"/>
     <xsl:choose>
         <xsl:when test="@module">
-	    <xsl:text> - \[</xsl:text><xsl:value-of select="@module"/><xsl:text>\]</xsl:text>
+        <xsl:text> - \[</xsl:text><xsl:value-of select="@module"/><xsl:text>\]</xsl:text>
         </xsl:when>
     </xsl:choose>
     <xsl:text>&#10;&#10;</xsl:text>
@@ -143,6 +143,10 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
         <xsl:with-param name="type">managerEvent</xsl:with-param>
         <xsl:with-param name="name" select="$name"/>
     </xsl:apply-templates>
+    <xsl:text>h3. Class&#10;</xsl:text>
+    <xsl:text>&#10;</xsl:text>
+    <xsl:value-of select="substring(@class, 12)"/>
+    <xsl:text>&#10;</xsl:text>
     <xsl:text>h3. See Also&#10;</xsl:text>
     <xsl:apply-templates select="see-also"/>
 </xsl:template>
