@@ -303,33 +303,77 @@ the XML again with the full descriptions, and forms bulleted lists.
         <xsl:value-of select="$name"/><xsl:text>(</xsl:text>
         <xsl:for-each select="parameter">
             <xsl:choose>
+                <!-- Handle parameters with arguments -->
                 <xsl:when test="argument">
+                    <!-- Close off optional parameters if we're required and last -->
+                    <xsl:choose>
+                        <xsl:when test="position() = last() and (@required='yes' or @required='true')">
+                            <xsl:for-each select="current()/../parameter">
+                                <xsl:choose>
+                                    <xsl:when test="@required='true' or @required='yes' or position() = last()"/>
+                                    <xsl:otherwise>
+                                        <xsl:text>]</xsl:text>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:for-each>
+                        </xsl:when>
+                    </xsl:choose>
+
+                    <xsl:value-of select="@name"/>
+                    <xsl:text>(</xsl:text>
                     <xsl:for-each select="argument">
-                        <xsl:if test="@required='false' or @required='no'">
-                            <xsl:text>[</xsl:text>
-                        </xsl:if>
-                        <xsl:if test="position() &gt; 1">
-                            <xsl:value-of select="../@argsep"/>
-                        </xsl:if>
+                        <!-- By default, arguments are optional -->
+                        <xsl:choose>
+                            <xsl:when test="@required='yes' or @required='true'"/>
+                            <xsl:otherwise>
+                                <xsl:text>[</xsl:text>
+                            </xsl:otherwise>
+                        </xsl:choose>
+
                         <xsl:value-of select="@name"/>
+                        <!-- Separators are either the parent's or ',' -->
+                        <xsl:if test="position() != last()">
+                            <xsl:choose>
+                                <xsl:when test="../@argsep">
+                                    <xsl:value-of select="../@argsep"/>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:text>,</xsl:text>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </xsl:if>
                         <xsl:if test="@multiple='true' or @multiple='yes'">
                             <xsl:text>[</xsl:text>
-                                <xsl:value-of select="../@argsep"/>
-                                <xsl:text>...</xsl:text>
+                            <!-- Only display separator in multi if we have something before us -->
+                            <xsl:if test="position() = last()">
+                                <xsl:choose>
+                                    <xsl:when test="../@argsep">
+                                        <xsl:value-of select="../@argsep"/>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:text>,</xsl:text>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:if>
+                            <xsl:text>...</xsl:text>
                             <xsl:text>]</xsl:text>
                         </xsl:if>
+
                     </xsl:for-each>
+
+                    <!-- Close off optional arguments -->
                     <xsl:for-each select="argument">
-                        <xsl:if test="@required='false' or @required='no'">
-                            <xsl:text>]</xsl:text>
-                        </xsl:if>
+                        <xsl:choose>
+                            <xsl:when test="@required='yes' or @required='true'"/>
+                            <xsl:otherwise>
+                                <xsl:text>]</xsl:text>
+                            </xsl:otherwise>
+                        </xsl:choose>
                     </xsl:for-each>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:if test="@required='false' or @required='no'">
-                        <xsl:text>[</xsl:text>
-                    </xsl:if>
-                    <xsl:if test="position() &gt; 1">
+                    <xsl:text>)</xsl:text>
+
+                    <!-- Use the local separator, or the parent, or ',' -->
+                    <xsl:if test="position() != last()">
                         <xsl:choose>
                             <xsl:when test="../@argsep">
                                 <xsl:value-of select="../@argsep"/>
@@ -339,7 +383,39 @@ the XML again with the full descriptions, and forms bulleted lists.
                             </xsl:otherwise>
                         </xsl:choose>
                     </xsl:if>
+                </xsl:when>
+                <xsl:otherwise>
+                    <!-- Handle regular parameters -->
+                    <xsl:choose>
+                        <xsl:when test="@required='true' or @required='yes'" />
+                        <xsl:otherwise>
+                            <xsl:text>[</xsl:text>
+                        </xsl:otherwise>
+                    </xsl:choose>
+                    <!-- Close off optional parameters -->
+                    <xsl:choose>
+                        <xsl:when test="position() = last() and (@required='true' or @required='yes')">
+                            <xsl:for-each select="current()/../parameter">
+                                <xsl:choose>
+                                    <xsl:when test="@required='true' or @required='yes' or position() = last()"/>
+                                    <xsl:otherwise>
+                                        <xsl:text>]</xsl:text>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:for-each>
+                        </xsl:when>
+                    </xsl:choose>
                     <xsl:value-of select="@name"/>
+                    <xsl:if test="position() != last()">
+                        <xsl:choose>
+                            <xsl:when test="../@argsep">
+                                <xsl:value-of select="../@argsep"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:text>,</xsl:text>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:if>
                     <xsl:if test="@multiple='true' or @multiple='yes'">
                         <xsl:text>[</xsl:text>
                         <xsl:choose>
@@ -353,17 +429,38 @@ the XML again with the full descriptions, and forms bulleted lists.
                         <xsl:text>...</xsl:text>
                         <xsl:text>]</xsl:text>
                     </xsl:if>
-                </xsl:otherwise>
+
+                    <!-- Close off optional parameters -->
+                    <xsl:choose>
+                        <xsl:when test="position() = last()">
+                            <!-- Only close off parameters if the last parameter is not required -->
+                            <xsl:choose>
+                                <xsl:when test="@required='true' or @required='yes'"/>
+                                <xsl:otherwise>
+                                    <xsl:for-each select="current()/../parameter">
+                                        <xsl:choose>
+                                            <xsl:when test="@required='true' or @required='yes'"/>
+                                            <xsl:otherwise>
+                                                <xsl:text>]</xsl:text>
+                                            </xsl:otherwise>
+                                        </xsl:choose>
+                                    </xsl:for-each>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </xsl:when>
+                    </xsl:choose> <!-- optional args -->
+                </xsl:otherwise>  <!-- parameters w/o arguments -->
             </xsl:choose>
-        </xsl:for-each>
+        </xsl:for-each>           <!-- for-each parameter -->
         <xsl:for-each select="parameter">
             <xsl:choose>
                 <xsl:when test="argument"/>
-                <xsl:otherwise>
-                    <xsl:if test="@required='false' or @required='no'">
-                        <xsl:text>]</xsl:text>
-                    </xsl:if>
-                </xsl:otherwise>
+                <xsl:choose>
+                    <xsl:when test="@required='true' or @required='yes'"/>
+                    <xsl:otherwise>
+                        <xsl:text>[</xsl:text>
+                    </xsl:otherwise>
+                </xsl:choose>
             </xsl:choose>
         </xsl:for-each>
         <xsl:text>)</xsl:text>
