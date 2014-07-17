@@ -319,8 +319,17 @@ the XML again with the full descriptions, and forms bulleted lists.
                         </xsl:when>
                     </xsl:choose>
 
-                    <xsl:value-of select="@name"/>
-                    <xsl:text>(</xsl:text>
+                    <!-- Only display the parameter name if the parameter
+                         itself has argument parameters; otherwise, the
+                         arguments themselves form the parameter -->
+                    <xsl:if test="@hasparams">
+                        <xsl:value-of select="@name"/>
+                        <xsl:if test="@hasparams='optional'">
+                            <xsl:text>[</xsl:text>
+                        </xsl:if>
+                        <xsl:text>(</xsl:text>
+                    </xsl:if>
+
                     <xsl:for-each select="argument">
                         <!-- By default, arguments are optional -->
                         <xsl:choose>
@@ -370,7 +379,14 @@ the XML again with the full descriptions, and forms bulleted lists.
                             </xsl:otherwise>
                         </xsl:choose>
                     </xsl:for-each>
-                    <xsl:text>)</xsl:text>
+
+                    <!-- Close off the parameter arguments -->
+                    <xsl:if test="@hasparams">
+                        <xsl:if test="@hasparams='optional'">
+                            <xsl:text>]</xsl:text>
+                        </xsl:if>
+                        <xsl:text>)</xsl:text>
+                    </xsl:if>
 
                     <!-- Use the local separator, or the parent, or ',' -->
                     <xsl:if test="position() != last()">
