@@ -684,6 +684,31 @@ be displayed.
     </xsl:choose>
 </xsl:template>
 
+<xsl:template match="example">
+    <xsl:text>{code:linenumbers=true</xsl:text>
+    <xsl:choose>
+        <xsl:when test="@title">
+            <xsl:text>|title=</xsl:text>
+            <xsl:text>Example: </xsl:text>
+            <xsl:value-of select="@title"/>
+        </xsl:when>
+        <xsl:otherwise />
+    </xsl:choose>
+    <xsl:choose>
+        <xsl:when test="@language">
+            <xsl:text>|language=</xsl:text>
+            <xsl:value-of select="@language" />
+        </xsl:when>
+        <xsl:otherwise />
+    </xsl:choose>
+    <xsl:text>}</xsl:text>
+    <xsl:text>&#10;</xsl:text>
+    <xsl:value-of select="."/>
+    <xsl:text>&#10;</xsl:text>
+    <xsl:text>{code}</xsl:text>
+    <xsl:text>&#10;</xsl:text>
+</xsl:template>
+
 <xsl:template match="note">
     <xsl:param name="returntype"/>
     <xsl:text>{info:title=Note}</xsl:text>
