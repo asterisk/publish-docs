@@ -14,7 +14,7 @@ fi
 : ${AWK:=awk}
 : ${GREP:=grep}
 : ${MAKE:=make}
-: ${SVN:=svn}
+: ${GIT:=git}
 
 function fail()
 {
@@ -81,7 +81,7 @@ fi
 #
 # Check current working copy
 #
-CHANGES=$(${SVN} st --ignore-externals | grep -v '^X' | wc -l)
+CHANGES=$(${GIT} status | grep 'modified:' | wc -l)
 if test ${CHANGES} -ne 0; then
     fail "Asterisk checkout must be clean"
 fi
@@ -93,7 +93,7 @@ set -ex
 # See if we need to build ARI docs
 #
 unset HAS_REST_API
-if test -d doc/rest-api; then
+if test -d rest-api; then
     HAS_REST_API=true
 fi
 
@@ -128,21 +128,21 @@ if test ${HAS_REST_API}; then
     make ari-stubs
 
     # Ensure docs are consistent with the implementation
-    CHANGES=$(${SVN} st --ignore-externals | grep -v '^X' | wc -l)
+    CHANGES=$(${GIT} status | grep 'modified:' | wc -l)
     if test ${CHANGES} -ne 0; then
         fail "Asterisk code out of date compared to the model"
     fi
 
     # make ari-stubs may modify the $Revision$ tags in a file; revert the
     # changes
-    svn revert . -R -q
+    ${GIT} reset --hard
 fi
 
 #
-# Don't publish docs for trunk. We still want the above validation to ensure
+# Don't publish docs for master. We still want the above validation to ensure
 # that REST API docs are kept up to date.
 #
-if test ${BRANCH_NAME} = 'trunk'; then
+if test ${BRANCH_NAME} = 'master'; then
     exit 0;
 fi
 
