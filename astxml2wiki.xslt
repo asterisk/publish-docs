@@ -644,9 +644,35 @@ the XML again with the full descriptions, and forms bulleted lists.
 
 <xsl:template match="argument">
     <xsl:param name="bullet"/>
+    <xsl:param name="separator">,</xsl:param>
     <xsl:value-of select="$bullet"/>
     <xsl:text> </xsl:text>
-    <xsl:text>{{</xsl:text><xsl:value-of select="@name"/><xsl:text>}}</xsl:text>
+    <xsl:text>{{</xsl:text>
+    <xsl:if test="@required='true' or @required='yes'">
+        <xsl:text>*</xsl:text>
+    </xsl:if>
+    <xsl:value-of select="@name"/>
+    <xsl:if test="@required='true' or @required='yes'">
+        <xsl:text>*</xsl:text>
+    </xsl:if>
+    <xsl:text>}}</xsl:text>
+    <xsl:if test="@multiple='true' or @multiple='yes'">
+        <xsl:text>\[</xsl:text>
+        <xsl:value-of select="$separator"/>
+        <xsl:text>{{</xsl:text><xsl:value-of select="@name"/><xsl:text>}}</xsl:text>
+        <xsl:text>...\]</xsl:text>
+    </xsl:if>
+    <xsl:if test="@hasparams='yes' or @hasparams='true' or @hasparams='optional'">
+        <xsl:text>{{( </xsl:text>
+        <xsl:if test="@hasparams='yes' or @hasparams='true'">
+            <xsl:text>*</xsl:text>
+        </xsl:if>
+        <xsl:text>params</xsl:text>
+        <xsl:if test="@hasparams='yes' or @hasparams='true'">
+            <xsl:text>*</xsl:text>
+        </xsl:if>
+        <xsl:text> )}}</xsl:text>
+    </xsl:if>
     <xsl:choose>
         <xsl:when test="para">
             <xsl:text> - </xsl:text>
@@ -658,6 +684,7 @@ the XML again with the full descriptions, and forms bulleted lists.
     <for-each select="./*">
         <xsl:apply-templates select="./*">
             <xsl:with-param name="bullet" select="concat($bullet,'*')"/>
+            <xsl:with-param name="separator" select="@argsep"/>
             <xsl:with-param name="returntype">single</xsl:with-param>
         </xsl:apply-templates>
     </for-each>
@@ -778,6 +805,7 @@ be displayed.
     <xsl:apply-templates select="enum">
         <xsl:with-param name="bullet" select="$bullet"/>
     </xsl:apply-templates>
+    <xsl:text>&#10;</xsl:text>
 </xsl:template>
 
 <xsl:template match="enum">
@@ -820,6 +848,31 @@ be displayed.
     <xsl:param name="bullet"/>
     <xsl:value-of select="$bullet"/><xsl:text> </xsl:text>
     <xsl:text>{{</xsl:text><xsl:value-of select="@name"/><xsl:text>}}</xsl:text>
+    <xsl:if test="argument">
+        <xsl:text>{{( </xsl:text>
+    </xsl:if>
+    <xsl:for-each select="argument">
+        <xsl:if test="@required='true' or @required='yes'">
+            <xsl:text>*</xsl:text>
+        </xsl:if>
+        <xsl:value-of select="@name"/>
+        <xsl:if test="@required='true' or @required='yes'">
+            <xsl:text>*</xsl:text>
+        </xsl:if>
+        <xsl:if test="position() != last()">
+            <xsl:choose>
+                <xsl:when test="../@argsep">
+                    <xsl:value-of select="../@argsep"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:text>,</xsl:text>
+                </xsl:otherwise>
+            </xsl:choose>
+         </xsl:if>
+    </xsl:for-each>
+    <xsl:if test="argument">
+        <xsl:text> )}}</xsl:text>
+    </xsl:if>
     <xsl:choose>
         <xsl:when test="para">
             <xsl:text> - </xsl:text>
@@ -836,6 +889,7 @@ be displayed.
     </xsl:apply-templates>
     <xsl:apply-templates select="argument">
         <xsl:with-param name="bullet" select="concat($bullet,'*')"/>
+        <xsl:with-param name="separator" select="@argsep"/>
     </xsl:apply-templates>
     <xsl:apply-templates select="enumlist">
         <xsl:with-param name="bullet" select="concat($bullet,'*')"/>
