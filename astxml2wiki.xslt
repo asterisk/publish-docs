@@ -598,7 +598,12 @@ the XML again with the full descriptions, and forms bulleted lists.
 <xsl:template match="info">
     <xsl:param name="bullet"/>
     <xsl:param name="returntype"/>
-    <xsl:value-of select="$bullet"/><xsl:text> </xsl:text>
+    <!-- <xsl:value-of select="$bullet"/><xsl:text> </xsl:text> -->
+    <xsl:text>&#10;</xsl:text>
+    <xsl:variable name="bulletlength" select="string-length($bullet)" />
+    <xsl:if test="$bulletlength != 0">
+        <xsl:value-of select="substring($bullet,0,($bulletlength))"/><xsl:text> </xsl:text>
+    </xsl:if>
     <xsl:text>*Technology: </xsl:text><xsl:value-of select="@tech"/><xsl:text>*</xsl:text>
     <xsl:text>&#10;</xsl:text>
     <xsl:if test="para">
@@ -606,6 +611,7 @@ the XML again with the full descriptions, and forms bulleted lists.
             <xsl:with-param name="returntype">single</xsl:with-param>
         </xsl:apply-templates>
     </xsl:if>
+    <xsl:apply-templates select="example" />
     <xsl:apply-templates select="note">
         <xsl:with-param name="returntype">single</xsl:with-param>
     </xsl:apply-templates>
@@ -613,10 +619,10 @@ the XML again with the full descriptions, and forms bulleted lists.
         <xsl:with-param name="returntype">single</xsl:with-param>
     </xsl:apply-templates>
     <xsl:apply-templates select="variablelist">
-        <xsl:with-param name="bullet" select="concat($bullet,'*')"/>
+        <xsl:with-param name="bullet" select="$bullet"/>
     </xsl:apply-templates>
     <xsl:apply-templates select="enumlist">
-        <xsl:with-param name="bullet" select="concat($bullet,'*')"/>
+        <xsl:with-param name="bullet" select="$bullet"/>
     </xsl:apply-templates>
 </xsl:template>
 
@@ -733,7 +739,6 @@ be displayed.
     <xsl:value-of select="."/>
     <xsl:text>&#10;</xsl:text>
     <xsl:text>{code}</xsl:text>
-    <xsl:text>&#10;</xsl:text>
 </xsl:template>
 
 <xsl:template match="note">
@@ -805,7 +810,6 @@ be displayed.
     <xsl:apply-templates select="enum">
         <xsl:with-param name="bullet" select="$bullet"/>
     </xsl:apply-templates>
-    <xsl:text>&#10;</xsl:text>
 </xsl:template>
 
 <xsl:template match="enum">
