@@ -152,8 +152,10 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 </xsl:template>
 
 <xsl:template match="configInfo">
-    <xsl:text>h1. </xsl:text>
-    <xsl:apply-templates select="synopsis"/>
+    <xsl:if test="synopsis">
+        <xsl:text>h1. </xsl:text>
+        <xsl:apply-templates select="synopsis"/>
+    </xsl:if>
     <xsl:text>&#10;&#10;</xsl:text>
     <xsl:text>This configuration documentation is for functionality provided by {{</xsl:text>
     <xsl:value-of select="@name"/>
@@ -718,7 +720,7 @@ be displayed.
 </xsl:template>
 
 <xsl:template match="example">
-    <xsl:text>{code:linenumbers=true</xsl:text>
+    <xsl:text>{code:</xsl:text>
     <xsl:choose>
         <xsl:when test="@title">
             <xsl:text>|title=</xsl:text>
@@ -727,6 +729,7 @@ be displayed.
         </xsl:when>
         <xsl:otherwise />
     </xsl:choose>
+    <xsl:text>|linenumbers=true</xsl:text>
     <xsl:choose>
         <xsl:when test="@language">
             <xsl:text>|language=</xsl:text>

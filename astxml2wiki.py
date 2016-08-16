@@ -4,6 +4,7 @@ import sys, os, re, difflib
 import lxml.etree as etree
 import version
 import string
+import copy
 from optparse import OptionParser
 import subprocess
 from xmlrpclib import Server
@@ -223,6 +224,9 @@ class AstXML2Wiki:
         return node
 
     def build_seealso_references(self, node):
+        # refnodes may be shared between nodes so we make a copy of everything
+        # so we don't modify things multiple times
+        node = copy.deepcopy(node)
         refnodes = node.getiterator('ref')
         for refnode in refnodes:
             type = refnode.attrib.get('type')
@@ -362,7 +366,7 @@ class AstXML2Wiki:
                 # The resulting XML has meaningless inconsistencies.
                 # Hack it into submission.
                 oldcontent = oldcontent.replace("&quot;", '"').replace("<br />", "<br/>").replace('<ul class="alternate">', '<ul class="alternate" type="square">').replace(' class="external-link"', "")
-                newcontent = newcontent.replace("&#94;", "^").replace("&#8211;", "&ndash;").replace("&#41;", ")").replace("&#95;", "_").replace(' class="external-link"', "")
+                newcontent = newcontent.replace("&#35;", "#").replace("&#94;", "^").replace("&#8211;", "&ndash;").replace("&#41;", ")").replace("&#95;", "_").replace(' class="external-link"', "").replace('<br class="atl-forced-newline" />', "")
 
                 if oldcontent != newcontent or self.args['force'] is True:
                     if self.args['v']:
@@ -380,6 +384,8 @@ class AstXML2Wiki:
                             'minorEdit': True,
                             'versionComment': 'Updated to ' + self.ast_v
                         })
+                else:
+                    self.processed['unchanged'] += 1
 
             except:
                 newpage['title'] = pagetitle

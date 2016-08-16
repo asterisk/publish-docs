@@ -96,7 +96,7 @@ def main(argv):
             oldcontent = page['content']
 
             if convert:
-                oldcontent = oldcontent.replace("<br />", "<br/>")
+                oldcontent = oldcontent.replace("<br />", "<br/>").replace("&quot;", "\"")
 
             if oldcontent != content:
                 page['content'] = content
