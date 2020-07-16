@@ -297,8 +297,28 @@ class AstXML2Wiki:
         if self.args['prefix'] == '' or self.args['prefix'] == "Asterisk 10 " or self.args['prefix'] == "Asterisk 11 ":
             topics.remove('configInfo')
 
+        if self.args['v'] is True:
+            print "Updating Confluence"
+
         for f in topics:
             # Get the ids of the parent pages
+            if f == 'manager':
+                pagetitle = '%sAMI Actions' % self.args['prefix']
+            elif f == 'application':
+                pagetitle = '%sDialplan Applications' % self.args['prefix']
+            elif f == 'function':
+                pagetitle = '%sDialplan Functions' % self.args['prefix']
+            elif f == 'agi':
+                pagetitle = '%sAGI Commands' % self.args['prefix']
+            elif f == 'managerEvent':
+                pagetitle = '%sAMI Events' % self.args['prefix']
+            elif f == 'configInfo':
+                pagetitle = '%sModule Configuration' % self.args['prefix']
+
+            if not pagetitle:
+                print("Unknown topic: %s" % f)
+                raise Exception
+
             if not self.args['debug']:
                 if self.args['v'] is True:
                     print "getPage(%s, %s, %s)" % (self.token, self.args['space'], self.parent[f])
@@ -309,10 +329,21 @@ class AstXML2Wiki:
                     self.parent[f] = elpage['id']
                 except:
                     print >>sys.stderr, "Exception getting %s/%s" % (self.args['space'], self.parent[f])
-                    raise
-
-        if self.args['v'] is True:
-            print "Updating Confluence"
+                    print("Attempting to create %s" % pagetitle)
+                    parentname = "%sCommand Reference" % self.args['prefix']
+                    print("Getting parent %s %s" % (self.args['space'], parentname))
+                    parent = self.api.getPage(self.token, self.args['space'], parentname)
+                    print("Got parent %s %s" % (parent['id'], parent['title']))
+                    newpage = {
+                        'space': self.args['space'],
+                        'parentId': parent['id'],
+                        'title': pagetitle,
+                        'content': "",
+                    }
+                    self.api.storePage(self.token, newpage)
+                    elpage = self.api.getPage(
+                        self.token, self.args['space'], self.parent[f])
+                    self.parent[f] = elpage['id']
 
         for node in self.elements:
             name = node.attrib.get('name')

@@ -67,8 +67,27 @@ def main(argv):
     if not token:
         fail("Could not log into Confluence!")
 
-    parent = api.getPage(token, space, "%s ARI" % prefix)
-    parentId = parent['id']
+    try:
+        parent = api.getPage(token, space, "%s ARI" % prefix)
+        parentId = parent['id']
+    except xmlrpclib.Fault, e:
+        print("Page '%s ARI' doesn't exist" % prefix)
+        if options.dry_run:
+            print("Returning (dry run)")
+            return
+        else:
+            print("Creating '%s ARI'" % prefix)
+            parent = api.getPage(token, space, "%s Command Reference" % prefix)
+
+            newpage = {
+                'space': space,
+                'parentId': parent['id'],
+                'title': "%s ARI" % prefix,
+                'content': "",
+            }
+            api.storePage(token, newpage)
+            parent = api.getPage(token, space, "%s ARI" % prefix)
+            parentId = parent['id']
 
     if options.verbose:
         print >> sys.stderr, "Parent page id %s" % parentId
