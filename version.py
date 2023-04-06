@@ -14,8 +14,9 @@ the GNU General Public License Version 2.
 import sys
 import re
 import unittest
+from functools import total_ordering
 
-
+@total_ordering
 class AsteriskVersion:
     """An Asterisk Version.
 
@@ -74,11 +75,22 @@ class AsteriskVersion:
                     res += int(self.patch) * 10
             return res
 
-    def __cmp__(self, other):
-        res = cmp(int(self), int(other))
-        if res == 0 and self.svn and other.svn:
-            res = cmp(int(self.revision.split("M")[0]),
-                      int(other.revision.split("M")[0]))
+    def __eq__(self, other):
+        res = int(self) == int(other)
+        if res and self.svn and other.svn:
+            res = (int(self.revision.split("M")[0]) == int(other.revision.split("M")[0]))
+        return res
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+    def __lt__(self, other):
+        if (int(self) == int(other)) and self.svn and other.svn:
+            res = (int(self.revision.split("M")[0]) < int(other.revision.split("M")[0]))
+        else:
+            res = int(self) < int(other)
+
         return res
 
     def __parse_version(self):
@@ -116,10 +128,10 @@ class AsteriskVersion:
                 v = match.group(1)
             f.close()
         except IOError:
-            print "I/O Error getting Asterisk version from %s" % path
+            print("I/O Error getting Asterisk version from %s" % path)
         except:
-            print "Unexpected error getting version from %s: %s" % (path,
-                    sys.exc_info()[0])
+            print("Unexpected error getting version from %s: %s" % (path,
+                    sys.exc_info()[0]))
         return v
 
 

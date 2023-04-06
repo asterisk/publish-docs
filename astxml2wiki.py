@@ -7,7 +7,7 @@ import string
 import copy
 from optparse import OptionParser
 import subprocess
-from xmlrpclib import Server
+from xmlrpc.client import Server
 
 def escape(string):
     return re.sub(r'([\{\}\[\]^_])', r'\\\1', string)
@@ -16,7 +16,7 @@ def call(*args, **kwargs):
     '''Invokes subprocess.call, calling sys.exit if it fails'''
     res = subprocess.call(*args, **kwargs)
     if res != 0:
-        print >> sys.stderr, "Failed to call: %s %s\n" % (args, kwargs)
+        print("Failed to call: %s %s\n" % (args, kwargs), file=sys.stderr)
         sys.exit(1)
 
 class AstXML2Wiki:
@@ -94,8 +94,8 @@ class AstXML2Wiki:
         }
 
         if self.args['file'] == '' and self.args['svn'] == '':
-            print >> sys.stderr, "Please specify a path to core-en_US.xml or an SVN URL."
-            print >> sys.stderr, usage
+            print("Please specify a path to core-en_US.xml or an SVN URL.", file=sys.stderr)
+            print(usage, file=sys.stderr)
             sys.exit(2)
 
         self.convert = False
@@ -106,16 +106,16 @@ class AstXML2Wiki:
 
         if not self.args['debug'] or self.args['force-convert']:
             if self.args['username'] == '' or self.args['password'] == '':
-                print >> sys.stderr, "Please specify a username and a password."
+                print("Please specify a username and a password.", file=sys.stderr)
                 sys.exit(1)
 
             if self.args['space'] == '':
-                print >> sys.stderr, "Please specify which Confluence space to use."
+                print("Please specify which Confluence space to use.", file=sys.stderr)
                 sys.exit(5)
 
             if self.args['server'] == '' or \
                 re.search(r'xmlrpc', self.args['server']) is None:
-                print >> sys.stderr, "Please specify a Confluence XMLRPC URL."
+                print("Please specify a Confluence XMLRPC URL.", file=sys.stderr)
                 sys.exit(3)
 
             self.s = Server(self.args['server'])
@@ -132,7 +132,7 @@ class AstXML2Wiki:
                 self.api = self.s.confluence1
 
             if self.token is None or self.token == '':
-                print >> sys.stderr, "Could not log into Confluence!"
+                print("Could not log into Confluence!", file=sys.stderr)
                 sys.exit(4)
 
     def build(self):
@@ -145,7 +145,7 @@ class AstXML2Wiki:
         pieces = self.svndir.rsplit('/', 1)
         self.svndir = 'workdirs/' + pieces[1]
         if self.args['v'] is True:
-            print "svndir is", self.svndir
+            print("svndir is", self.svndir)
 
         # Checkout branch from subversion
         if not os.path.exists(self.svndir):
@@ -178,7 +178,7 @@ class AstXML2Wiki:
         self.ast_v = res_ver[0].rstrip('\n')
         self.ast_v = str(version.AsteriskVersion(self.ast_v))
         if self.args['v'] is True:
-            print "version: ", self.ast_v
+            print("version: ", self.ast_v)
 
         self.args['file'] = self.path + "/" + self.svndir + "/doc/core-en_US.xml"
         os.chdir(self.path)
@@ -191,10 +191,10 @@ class AstXML2Wiki:
             current_text = ''
             if paragraph.text:
                 children = paragraph.getchildren()
-		# Emulate the itertext function
-		paragraph_text = []
-		for p in paragraph.getiterator():
-		    if p.text:
+                # Emulate the itertext function
+                paragraph_text = []
+                for p in paragraph.getiterator():
+                    if p.text:
                         paragraph_text.append(p.text)
                     if p.tail:
                         paragraph_text.append(p.tail)
@@ -229,24 +229,24 @@ class AstXML2Wiki:
         node = copy.deepcopy(node)
         refnodes = node.getiterator('ref')
         for refnode in refnodes:
-            type = refnode.attrib.get('type')
+            attr_type = refnode.attrib.get('type')
             module = refnode.attrib.get('module')
             if not module:
                 module = ''
             else:
                 module = '_%s' % module
             link = refnode.text
-            if type == 'manager':
+            if attr_type == 'manager':
                 link = '[' + self.args['prefix'] + 'ManagerAction_%s%s]\n' % (link, module)
-            elif type == 'application':
+            elif attr_type == 'application':
                 link = '[' + self.args['prefix'] + 'Application_%s%s]\n' % (link, module)
-            elif type == 'function':
+            elif attr_type == 'function':
                 link = '[' + self.args['prefix'] + 'Function_%s%s]\n' % (link, module)
-            elif type == 'agi':
+            elif attr_type == 'agi':
                 link = '[' + self.args['prefix'] + 'AGICommand_%s%s]\n' % (link, module)
-            elif type == 'managerEvent':
+            elif attr_type == 'managerEvent':
                 link = '[' + self.args['prefix'] + 'ManagerEvent_%s%s]\n' % (link, module)
-            elif type == 'configInfo':
+            elif attr_type == 'configInfo':
                 link = '[' + self.args['prefix'] + 'Configuration_%s%s]\n' % (link, module)
             else:
                 # This is either "filename" or "manpage"
@@ -259,7 +259,7 @@ class AstXML2Wiki:
         ''' Collect and do the first pass of formatting on the XML nodes for each
         major type '''
 
-	print self.args['file']
+        print(self.args['file'])
         self.xmltree = etree.parse(self.args['file'])
         self.xmltree.xinclude()
         for child in self.xmltree.getiterator():
@@ -298,7 +298,7 @@ class AstXML2Wiki:
             topics.remove('configInfo')
 
         if self.args['v'] is True:
-            print "Updating Confluence"
+            print("Updating Confluence")
 
         for f in topics:
             # Get the ids of the parent pages
@@ -321,14 +321,14 @@ class AstXML2Wiki:
 
             if not self.args['debug']:
                 if self.args['v'] is True:
-                    print "getPage(%s, %s, %s)" % (self.token, self.args['space'], self.parent[f])
+                    print("getPage(%s, %s, %s)" % (self.token, self.args['space'], self.parent[f]))
 
                 try:
                     elpage = self.api.getPage(
                         self.token, self.args['space'], self.parent[f])
                     self.parent[f] = elpage['id']
                 except:
-                    print >>sys.stderr, "Exception getting %s/%s" % (self.args['space'], self.parent[f])
+                    print("Exception getting %s/%s" % (self.args['space'], self.parent[f]), file=sys.stderr)
                     print("Attempting to create %s" % pagetitle)
                     parentname = "%sCommand Reference" % self.args['prefix']
                     print("Getting parent %s %s" % (self.args['space'], parentname))
@@ -378,8 +378,8 @@ class AstXML2Wiki:
                 wiki = self.api.convertWikiToStorageFormat(self.token, wiki)
 
             if self.args['debug']:
-                print pagetitle
-                print wiki
+                print(pagetitle)
+                print(wiki)
                 continue
 
             try:
@@ -401,7 +401,7 @@ class AstXML2Wiki:
 
                 if oldcontent != newcontent or self.args['force'] is True:
                     if self.args['v']:
-                        print elpage['title'], " updated"
+                        print(elpage['title'], " updated")
                         self.processed['updated'] += 1
                     if self.args['diff']:
                         diff = difflib.unified_diff(oldcontent.splitlines(1),
@@ -423,12 +423,12 @@ class AstXML2Wiki:
                 newpage['content'] = wiki
                 newpage['parentId'] = str(self.parent[node.tag])
                 if self.args['diff']:
-                    print "%s created" % pagetitle
+                    print("%s created" % pagetitle)
                 else:
                     try:
                         page = self.api.storePage(self.token, newpage)
                         if self.args['v']:
-                            print newpage['title'], " created"
+                            print(newpage['title'], " created")
                             self.processed['created'] += 1
                     except:
                         pass
@@ -454,7 +454,7 @@ def main(argv):
         return 0
     if a.args['v'] is True:
         for k in a.processed:
-            print k, " ", a.processed[k]
+            print(k, " ", a.processed[k])
 
     return 0
 

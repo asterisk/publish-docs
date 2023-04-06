@@ -7,11 +7,11 @@ import difflib
 import getpass
 import os
 import sys
-import xmlrpclib
+import xmlrpc.client
 import xml.dom.minidom
 
 from optparse import OptionParser
-from xmlrpclib import Server
+from xmlrpc.client import Server
 
 def fail(msg):
     print >> sys.stderr, msg
@@ -70,7 +70,7 @@ def main(argv):
     try:
         parent = api.getPage(token, space, "%s ARI" % prefix)
         parentId = parent['id']
-    except xmlrpclib.Fault, e:
+    except xmlrpc.Fault as e:
         print("Page '%s ARI' doesn't exist" % prefix)
         if options.dry_run:
             print("Returning (dry run)")
@@ -122,9 +122,9 @@ def main(argv):
                 page['parentId'] = parentId
 
                 if options.dry_run:
-                    print "Updating %s (dry run)" % page_title
-		else:
-                    print "Updating %s" % page_title
+                    print("Updating %s (dry run)" % page_title)
+                else:
+                    print("Updating %s" % page_title)
                     api.updatePage(token, page, comment)
                 if options.verbose:
                     diff = difflib.unified_diff(oldcontent.splitlines(1), content.splitlines(1), fromfile=page_title, tofile=wiki)
@@ -132,8 +132,8 @@ def main(argv):
                         sys.stdout.write(line)
             else:
                 if options.verbose:
-                    print "Skipping %s (up to date)" % page_title
-        except xmlrpclib.Fault, e:
+                    print("Skipping %s (up to date)" % page_title)
+        except xmlrpc.Fault as e:
             newpage = {
                 'space': space,
                 'parentId': parentId,
@@ -141,9 +141,9 @@ def main(argv):
                 'content': content,
             }
             if options.dry_run:
-                print "Creating %s (dry run)" % page_title
-	    else:
-                print "Creating %s" % page_title
+                print("Creating %s (dry run)" % page_title)
+            else:
+                print("Creating %s" % page_title)
                 api.storePage(token, newpage)
 
 
